@@ -77,10 +77,27 @@ def test_render_invoice_generates_valid_xml():
     assert root.find(f"{NS}Emisor/{NS}Identificacion/{NS}Numero").text == invoice.emisor.identificacion.numero
     assert root.find(f"{NS}Receptor/{NS}Identificacion/{NS}Numero").text == invoice.receptor.identificacion.numero
     assert root.find(f"{NS}DetalleServicio/{NS}LineaDetalle/{NS}Impuesto/{NS}Monto").text == "13"
-    assert root.find(f"{NS}ResumenFactura/{NS}TotalComprobante").text == "113"
+    resumen = root.find(f"{NS}ResumenFactura")
+    codigo_tipo = resumen.find(f"{NS}CodigoTipoMoneda")
+    assert codigo_tipo.find(f"{NS}CodigoMoneda").text == "CRC"
+    assert resumen.find(f"{NS}TotalServGravados").text == "100"
+    assert resumen.find(f"{NS}TotalVenta").text == "100"
+    assert resumen.find(f"{NS}TotalComprobante").text == "113"
 
 
 def test_render_invoice_without_validation():
     invoice = _sample_invoice()
     xml = render_invoice(invoice, validate=False)
     assert "FacturaElectronica" in xml
+
+
+def test_render_invoice_includes_extended_totals():
+    invoice = _sample_invoice()
+    invoice.resumen.total_serv_exonerado = Decimal("0.00")
+    invoice.resumen.total_iva_devuelto = Decimal("0.00")
+    xml = render_invoice(invoice)
+    root = ET.fromstring(xml)
+
+    resumen = root.find(f"{NS}ResumenFactura")
+    assert resumen.find(f"{NS}TotalServExonerado") is not None
+    assert resumen.find(f"{NS}TotalIVADevuelto") is not None

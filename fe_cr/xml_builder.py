@@ -192,22 +192,42 @@ def invoice_to_xml(invoice: ElectronicInvoice, *, validate: bool = True) -> Elem
         _append_line(detalle, linea)
 
     resumen = SubElement(root, "ResumenFactura")
-    _text(resumen, "CodigoMoneda", invoice.resumen.moneda)
+    codigo_tipo_moneda = SubElement(resumen, "CodigoTipoMoneda")
+    _text(codigo_tipo_moneda, "CodigoMoneda", invoice.resumen.moneda)
     if invoice.resumen.tipo_cambio is not None:
-        _text(resumen, "TipoCambio", _decimal_to_text(invoice.resumen.tipo_cambio, places=5))
-    _text(resumen, "TotalServGravados", _decimal_to_text(invoice.resumen.total_serv_gravados))
-    _text(resumen, "TotalServExentos", _decimal_to_text(invoice.resumen.total_serv_exentos))
-    _text(resumen, "TotalMercanciasGravadas", _decimal_to_text(invoice.resumen.total_mercancias_gravadas))
-    _text(resumen, "TotalMercanciasExentas", _decimal_to_text(invoice.resumen.total_mercancias_exentas))
-    _text(resumen, "TotalGravado", _decimal_to_text(invoice.resumen.total_gravado))
-    _text(resumen, "TotalExento", _decimal_to_text(invoice.resumen.total_exento))
-    _text(resumen, "TotalExonerado", _decimal_to_text(invoice.resumen.total_exonerado))
-    _text(resumen, "TotalVenta", _decimal_to_text(invoice.resumen.total_venta))
-    _text(resumen, "TotalDescuentos", _decimal_to_text(invoice.resumen.total_descuentos))
-    _text(resumen, "TotalVentaNeta", _decimal_to_text(invoice.resumen.total_venta_neta))
-    _text(resumen, "TotalImpuesto", _decimal_to_text(invoice.resumen.total_impuestos))
-    _text(resumen, "TotalOtrosCargos", _decimal_to_text(invoice.resumen.total_otros_cargos))
-    _text(resumen, "TotalComprobante", _decimal_to_text(invoice.resumen.total_comprobante))
+        _text(
+            codigo_tipo_moneda,
+            "TipoCambio",
+            _decimal_to_text(invoice.resumen.tipo_cambio, places=5),
+        )
+
+    resumen_fields = [
+        ("TotalServGravados", invoice.resumen.total_serv_gravados),
+        ("TotalServExentos", invoice.resumen.total_serv_exentos),
+        ("TotalServExonerado", invoice.resumen.total_serv_exonerado),
+        ("TotalServNoSujeto", invoice.resumen.total_serv_no_sujeto),
+        ("TotalServOtros", invoice.resumen.total_serv_otros),
+        ("TotalMercanciasGravadas", invoice.resumen.total_mercancias_gravadas),
+        ("TotalMercanciasExentas", invoice.resumen.total_mercancias_exentas),
+        ("TotalMercanciasExoneradas", invoice.resumen.total_mercancias_exoneradas),
+        ("TotalMercanciasNoSujeto", invoice.resumen.total_mercancias_no_sujeto),
+        ("TotalMercanciasOtros", invoice.resumen.total_mercancias_otros),
+        ("TotalGravado", invoice.resumen.total_gravado),
+        ("TotalExento", invoice.resumen.total_exento),
+        ("TotalExonerado", invoice.resumen.total_exonerado),
+        ("TotalNoSujeto", invoice.resumen.total_no_sujeto),
+        ("TotalOtros", invoice.resumen.total_otros),
+        ("TotalVenta", invoice.resumen.total_venta),
+        ("TotalDescuentos", invoice.resumen.total_descuentos),
+        ("TotalVentaNeta", invoice.resumen.total_venta_neta),
+        ("TotalImpuesto", invoice.resumen.total_impuestos),
+        ("TotalIVADevuelto", invoice.resumen.total_iva_devuelto),
+        ("TotalOtrosCargos", invoice.resumen.total_otros_cargos),
+        ("TotalComprobante", invoice.resumen.total_comprobante),
+    ]
+
+    for tag, value in resumen_fields:
+        _text(resumen, tag, _decimal_to_text(value))
 
     if invoice.otros_cargos:
         otros_cargos = SubElement(root, "OtrosCargos")
