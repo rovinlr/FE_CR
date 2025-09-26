@@ -29,3 +29,8 @@ class ResCompany(models.Model):
         string="Ambiente Hacienda",
         default="sandbox",
     )
+    cr_hacienda_username = fields.Char(string="Usuario Hacienda")
+    cr_hacienda_password = fields.Char(string="Contraseña Hacienda", password=True)
+    cr_certificate_p12 = fields.Binary(string="Certificado P12 Hacienda")
+    cr_certificate_password = fields.Char(string="Contraseña certificado", password=True)
+    cr_certificate_filename = fields.Char(string="Nombre archivo certificado")

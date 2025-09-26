@@ -8,7 +8,7 @@
     "category": "Accounting/Localizations",
     "depends": ["account"],
     "external_dependencies": {
-        "python": ["fe_cr"],
+        "python": ["fe_cr", "cryptography", "lxml", "signxml"],
     },
     "data": [
         "security/ir.model.access.csv",

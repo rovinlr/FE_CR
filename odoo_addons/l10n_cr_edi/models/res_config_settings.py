@@ -56,3 +56,23 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.cr_environment",
         readonly=False,
     )
+    cr_hacienda_username = fields.Char(
+        related="company_id.cr_hacienda_username",
+        readonly=False,
+    )
+    cr_hacienda_password = fields.Char(
+        related="company_id.cr_hacienda_password",
+        readonly=False,
+    )
+    cr_certificate_p12 = fields.Binary(
+        related="company_id.cr_certificate_p12",
+        readonly=False,
+    )
+    cr_certificate_password = fields.Char(
+        related="company_id.cr_certificate_password",
+        readonly=False,
+    )
+    cr_certificate_filename = fields.Char(
+        related="company_id.cr_certificate_filename",
+        readonly=False,
+    )
