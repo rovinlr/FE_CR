@@ -140,19 +140,30 @@ class InvoiceLine:
 
 @dataclass(slots=True)
 class InvoiceSummary:
+    """Totales del comprobante según el esquema ``v4.4``."""
+
     moneda: str
     tipo_cambio: Optional[Decimal]
     total_serv_gravados: Decimal = Decimal("0")
     total_serv_exentos: Decimal = Decimal("0")
+    total_serv_exonerado: Decimal = Decimal("0")
+    total_serv_no_sujeto: Decimal = Decimal("0")
+    total_serv_otros: Decimal = Decimal("0")
     total_mercancias_gravadas: Decimal = Decimal("0")
     total_mercancias_exentas: Decimal = Decimal("0")
+    total_mercancias_exoneradas: Decimal = Decimal("0")
+    total_mercancias_no_sujeto: Decimal = Decimal("0")
+    total_mercancias_otros: Decimal = Decimal("0")
     total_gravado: Decimal = Decimal("0")
     total_exento: Decimal = Decimal("0")
     total_exonerado: Decimal = Decimal("0")
+    total_no_sujeto: Decimal = Decimal("0")
+    total_otros: Decimal = Decimal("0")
     total_venta: Decimal = Decimal("0")
     total_descuentos: Decimal = Decimal("0")
     total_venta_neta: Decimal = Decimal("0")
     total_impuestos: Decimal = Decimal("0")
+    total_iva_devuelto: Decimal = Decimal("0")
     total_otros_cargos: Decimal = Decimal("0")
     total_comprobante: Decimal = Decimal("0")
 

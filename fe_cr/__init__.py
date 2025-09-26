@@ -1,6 +1,7 @@
 """Módulo de ayuda para construir comprobantes electrónicos de Costa Rica (v4.4)."""
 
 from .exceptions import ValidationError
+from .hacienda_api import HaciendaAPI, HaciendaAPIError
 from .models import (
     ElectronicInvoice,
     Emisor,
@@ -32,6 +33,8 @@ __all__ = [
     "OtherCharge",
     "PaymentMethod",
     "Phone",
+    "HaciendaAPI",
+    "HaciendaAPIError",
     "Receptor",
     "ReferenceInformation",
     "SaleCondition",
