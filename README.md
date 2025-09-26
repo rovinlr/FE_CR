@@ -8,6 +8,9 @@ Módulo en Python para generar comprobantes electrónicos costarricenses (versi�
 - Validaciones básicas para los campos más relevantes (clave de 50 dígitos, consecutivo de 20 dígitos, identificación, totales).
 - Generación de XML listo para firmar y enviar a la ATV utilizando el esquema oficial `v4.4`.
 
+- Módulo complementario para Odoo 19 (`odoo_addons/fe_cr_einvoice`) con vistas, campos adicionales y permisos para gestionar comprobantes electrónicos.
+
+
 ## Instalación
 
 El proyecto está organizado como un paquete estándar de Python. Para usarlo de forma local ejecute:
@@ -90,6 +93,15 @@ invoice = ElectronicInvoice(
 xml = render_invoice(invoice)
 print(xml)
 ```
+
+
+### Uso desde Odoo 19
+
+1. Copie la carpeta `odoo_addons/fe_cr_einvoice` dentro del `addons_path` de su instancia.
+2. Active el modo desarrollador y actualice la lista de aplicaciones.
+3. Instale **Costa Rica Electronic Invoicing** y configure los datos de Hacienda en *Ajustes → Facturación → Costa Rica*.
+4. Abra una factura de cliente para acceder a la pestaña **Factura electrónica CR**, completar los campos requeridos y generar el XML mediante el botón **Generar XML Hacienda**.
+
 
 ## Pruebas
 
