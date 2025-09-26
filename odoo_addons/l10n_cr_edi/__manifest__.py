@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 {
     "name": "Costa Rica Electronic Invoicing",
     "summary": "Extiende la facturación de Odoo 19 para cumplir con Hacienda Costa Rica",
