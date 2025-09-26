@@ -9,7 +9,7 @@ Módulo en Python para generar comprobantes electrónicos costarricenses (versi�
 - Generación de XML listo para firmar y enviar a la ATV utilizando el esquema oficial `v4.4`.
 - Cliente ligero para autenticarse y comunicarse con la API de recepción (`/recepcion/v1`).
 
-- Módulo complementario para Odoo 19 (`odoo_addons/l10n_cr_edi`) con vistas, campos adicionales y permisos para gestionar comprobantes electrónicos.
+- Módulo complementario para Odoo 19 (`l10n_cr_edi`) con vistas, campos adicionales y permisos para gestionar comprobantes electrónicos.
 
 
 ## Instalación
@@ -99,7 +99,7 @@ print(xml)
 ### Uso desde Odoo 19
 
 1. Instale el paquete Python ejecutando `pip install -e .` (o añada el directorio `fe_cr` al `PYTHONPATH` del entorno de Odoo).
-2. Copie la carpeta `odoo_addons/l10n_cr_edi` dentro del `addons_path` de su instancia.
+2. Añada la carpeta `l10n_cr_edi` a alguna de las rutas definidas en el `addons_path` de su instancia (puede copiarla o declarar la ruta del repositorio completo `FE_CR`).
 3. Active el modo desarrollador, actualice la lista de aplicaciones y quite el filtro "Aplicaciones" para que se muestren los módulos técnicos.
 4. Instale **Costa Rica Electronic Invoicing** y configure los datos de Hacienda en *Ajustes → Facturación → Costa Rica*.
 5. Abra una factura de cliente para acceder a la pestaña **Factura electrónica CR**, completar los campos requeridos y generar el XML mediante el botón **Generar XML Hacienda**.
