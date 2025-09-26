@@ -8,6 +8,9 @@
     "website": "https://github.com/example/fe_cr",
     "category": "Accounting/Localizations",
     "depends": ["account"],
+    "external_dependencies": {
+        "python": ["fe_cr"],
+    },
     "data": [
         "security/ir.model.access.csv",
         "views/electronic_document_views.xml",
