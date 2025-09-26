@@ -178,12 +178,73 @@ class AccountMove(models.Model):
                 )
             if not move.partner_id:
                 raise UserError(_("La factura debe tener un cliente asignado."))
+            partner = move.partner_id.commercial_partner_id
+            partner_missing = []
+            if not partner.l10n_cr_identification_type:
+                partner_missing.append(_("Tipo identificación cliente"))
+            if partner.l10n_cr_identification_type == "05":
+                if not (
+                    partner.l10n_cr_identification_number
+                    or partner.vat
+                    or partner.ref
+                ):
+                    partner_missing.append(_("Documento extranjero"))
+            else:
+                if not (
+                    partner.l10n_cr_identification_number
+                    or partner.vat
+                    or partner.ref
+                ):
+                    partner_missing.append(_("Número identificación cliente"))
+            if partner_missing:
+                raise UserError(
+                    _(
+                        "El cliente %s no tiene configurados los datos necesarios: %s"
+                    )
+                    % (partner.display_name, ", ".join(partner_missing))
+                )
         return True
 
     def _prepare_cr_invoice_payload(self) -> ElectronicInvoice:
         self.ensure_one()
         company = self.company_id
-        partner = self.partner_id
+        partner = self.partner_id.commercial_partner_id
+
+        partner_ident_type = partner.l10n_cr_identification_type or (
+            "02" if partner.company_type == "company" else "01"
+        )
+        partner_ident_number = (
+            partner.l10n_cr_identification_number
+            or partner.vat
+            or partner.ref
+            or "000000000"
+        )
+        identificacion_extranjero = None
+        receptor_identificacion = None
+        if partner_ident_type == "05":
+            identificacion_extranjero = partner_ident_number
+        elif partner_ident_number:
+            receptor_identificacion = Identification(
+                tipo=partner_ident_type,
+                numero=partner_ident_number,
+            )
+
+        receptor_ubicacion = None
+        if partner.l10n_cr_province and partner.l10n_cr_canton and partner.l10n_cr_district:
+            receptor_ubicacion = Location(
+                provincia=partner.l10n_cr_province,
+                canton=partner.l10n_cr_canton,
+                distrito=partner.l10n_cr_district,
+                barrio=partner.l10n_cr_neighborhood or None,
+                otras_senas=partner.l10n_cr_address or partner.street,
+            )
+
+        receptor_phone = None
+        if partner.l10n_cr_phone_number:
+            receptor_phone = Phone(
+                codigo_pais=partner.l10n_cr_phone_country_code or "506",
+                numero=partner.l10n_cr_phone_number,
+            )
 
         emisor = Emisor(
             nombre=company.name,
@@ -210,40 +271,91 @@ class AccountMove(models.Model):
 
         receptor = Receptor(
             nombre=partner.name,
-            identificacion=Identification(
-                tipo=(partner.l10n_cr_identification_type or "01"),
-                numero=(partner.vat or partner.ref or "000000000"),
-            )
-            if (partner.vat or partner.ref)
-            else None,
-            nombre_comercial=partner.commercial_partner_id.name,
+            identificacion=receptor_identificacion,
+            identificacion_extranjero=identificacion_extranjero,
+            nombre_comercial=partner.name,
+            ubicacion=receptor_ubicacion,
+            telefono=receptor_phone,
             correo_electronico=partner.email,
         )
 
         detalle = []
+        total_serv_gravados = Decimal("0")
+        total_serv_exentos = Decimal("0")
+        total_serv_exonerado = Decimal("0")
+        total_serv_no_sujeto = Decimal("0")
+        total_serv_otros = Decimal("0")
+        total_mercancias_gravadas = Decimal("0")
+        total_mercancias_exentas = Decimal("0")
+        total_mercancias_exoneradas = Decimal("0")
+        total_mercancias_no_sujeto = Decimal("0")
+        total_mercancias_otros = Decimal("0")
+        total_descuentos = Decimal("0")
         for index, line in enumerate(
             self.invoice_line_ids.filtered(lambda l: l.display_type not in ("line_section", "line_note")),
             start=1,
         ):
             tax = None
             tax_amount = Decimal("0.00")
-            if line.tax_ids:
-                tax_record = line.tax_ids[0]
-                tax_code = getattr(tax_record, "l10n_cr_tax_code", None) or "01"
+            tax_record = line.tax_ids[:1]
+            summary_group = "exento"
+            if tax_record:
+                tax_rec = tax_record[0]
+                tax_code = getattr(tax_rec, "l10n_cr_tax_code", None) or "01"
+                tax_amount = Decimal(str(line.price_total - line.price_subtotal))
                 tax = Tax(
                     codigo=tax_code,
-                    tarifa=Decimal(str(tax_record.amount)),
-                    monto=Decimal(str(line.price_total - line.price_subtotal)),
+                    tarifa=Decimal(str(tax_rec.amount)),
+                    monto=tax_amount,
                 )
-                tax_amount = tax.monto
+                summary_group = getattr(tax_rec, "l10n_cr_summary_group", False) or (
+                    "gravado" if tax_amount != Decimal("0.00") else "exento"
+                )
+            elif line.price_total != line.price_subtotal:
+                tax_amount = Decimal(str(line.price_total - line.price_subtotal))
+                summary_group = "gravado"
+
+            if summary_group not in {"gravado", "exento", "exonerado", "no_sujeto", "otros"}:
+                summary_group = "exento" if tax_amount == Decimal("0.00") else "gravado"
+
             discount = None
+            discount_amount = Decimal("0.00")
             if line.discount:
                 line_total = Decimal(str(line.price_unit)) * Decimal(str(line.quantity))
                 discount_amount = line_total * Decimal(str(line.discount / 100.0))
                 discount = Discount(
-                    monto=Decimal(str(discount_amount)),
+                    monto=discount_amount,
                     naturaleza=_("Descuento de línea"),
                 )
+                total_descuentos += discount_amount
+
+            line_subtotal = Decimal(str(line.price_subtotal or 0))
+            line_total_amount = Decimal(str(line.price_unit or 0)) * Decimal(str(line.quantity or 0))
+            product_type = line.product_id.type or "service"
+            is_service = product_type == "service"
+            if is_service:
+                if summary_group == "gravado":
+                    total_serv_gravados += line_subtotal
+                elif summary_group == "exento":
+                    total_serv_exentos += line_subtotal
+                elif summary_group == "exonerado":
+                    total_serv_exonerado += line_subtotal
+                elif summary_group == "no_sujeto":
+                    total_serv_no_sujeto += line_subtotal
+                else:
+                    total_serv_otros += line_subtotal
+            else:
+                if summary_group == "gravado":
+                    total_mercancias_gravadas += line_subtotal
+                elif summary_group == "exento":
+                    total_mercancias_exentas += line_subtotal
+                elif summary_group == "exonerado":
+                    total_mercancias_exoneradas += line_subtotal
+                elif summary_group == "no_sujeto":
+                    total_mercancias_no_sujeto += line_subtotal
+                else:
+                    total_mercancias_otros += line_subtotal
+
             detalle.append(
                 InvoiceLine(
                     numero_linea=index,
@@ -252,8 +364,9 @@ class AccountMove(models.Model):
                     unidad_medida=line.product_uom_id.l10n_cr_code or line.product_uom_id.name or "Unid",
                     detalle=line.name,
                     precio_unitario=Decimal(str(line.price_unit)),
-                    monto_total=Decimal(str(line.price_unit)) * Decimal(str(line.quantity)),
-                    sub_total=Decimal(str(line.price_subtotal)),
+                    monto_total=line_total_amount,
+                    sub_total=line_subtotal,
+                    base_imponible=line_subtotal,
                     impuesto=tax,
                     impuesto_neto=tax_amount,
                     descuento=discount,
@@ -270,19 +383,39 @@ class AccountMove(models.Model):
             )
             conversion_rate = Decimal(str(rate))
 
+        total_venta = Decimal(str(self.amount_untaxed or 0))
+        total_impuestos = Decimal(str(self.amount_tax or 0))
+        total_comprobante = Decimal(str(self.amount_total or 0))
+        total_venta_neta = max(total_venta - total_descuentos, Decimal("0"))
+        total_gravado = total_serv_gravados + total_mercancias_gravadas
+        total_exento = total_serv_exentos + total_mercancias_exentas
+        total_exonerado = total_serv_exonerado + total_mercancias_exoneradas
+        total_no_sujeto = total_serv_no_sujeto + total_mercancias_no_sujeto
+        total_otros = total_serv_otros + total_mercancias_otros
+
         resumen = InvoiceSummary(
-            moneda=self.currency_id.name,
+            moneda=self.currency_id.name or self.company_id.currency_id.name,
             tipo_cambio=conversion_rate,
-            total_serv_gravados=sum(
-                Decimal(str(line.price_subtotal))
-                for line in self.invoice_line_ids
-                if line.tax_ids
-            ),
-            total_gravado=Decimal(str(self.amount_untaxed)),
-            total_venta=Decimal(str(self.amount_untaxed)),
-            total_venta_neta=Decimal(str(self.amount_untaxed)),
-            total_impuestos=Decimal(str(self.amount_tax)),
-            total_comprobante=Decimal(str(self.amount_total)),
+            total_serv_gravados=total_serv_gravados,
+            total_serv_exentos=total_serv_exentos,
+            total_serv_exonerado=total_serv_exonerado,
+            total_serv_no_sujeto=total_serv_no_sujeto,
+            total_serv_otros=total_serv_otros,
+            total_mercancias_gravadas=total_mercancias_gravadas,
+            total_mercancias_exentas=total_mercancias_exentas,
+            total_mercancias_exoneradas=total_mercancias_exoneradas,
+            total_mercancias_no_sujeto=total_mercancias_no_sujeto,
+            total_mercancias_otros=total_mercancias_otros,
+            total_gravado=total_gravado,
+            total_exento=total_exento,
+            total_exonerado=total_exonerado,
+            total_no_sujeto=total_no_sujeto,
+            total_otros=total_otros,
+            total_venta=total_venta,
+            total_descuentos=total_descuentos,
+            total_venta_neta=total_venta_neta,
+            total_impuestos=total_impuestos,
+            total_comprobante=total_comprobante,
         )
 
         clave = self.cr_invoice_key or self._generate_cr_key()
