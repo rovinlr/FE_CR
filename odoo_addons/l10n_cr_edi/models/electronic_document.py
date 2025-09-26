@@ -1,3 +1,5 @@
+import base64
+
 from odoo import api, fields, models, _
 
 
@@ -37,12 +39,16 @@ class ElectronicDocument(models.Model):
 
     @api.model
     def create_from_invoice(self, move, xml_content, filename):
+        if isinstance(xml_content, str):
+            xml_bytes = xml_content.encode("utf-8")
+        else:
+            xml_bytes = xml_content
         document = self.create(
             {
                 "name": filename,
                 "move_id": move.id,
                 "state": "generated",
-                "xml_comprobante": xml_content,
+                "xml_comprobante": base64.b64encode(xml_bytes),
                 "xml_filename": filename,
             }
         )

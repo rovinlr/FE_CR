@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import json
 from decimal import Decimal
 
 from odoo import _, fields, models
@@ -9,6 +11,8 @@ from fe_cr import (
     Discount,
     ElectronicInvoice,
     Emisor,
+    HaciendaAPI,
+    HaciendaAPIError,
     Identification,
     InvoiceLine,
     InvoiceSummary,
@@ -18,6 +22,9 @@ from fe_cr import (
     Receptor,
     SaleCondition,
     Tax,
+    ValidationError,
+    sign_xml_with_p12,
+    validate_invoice,
 )
 from fe_cr.xml_builder import render_invoice
 
@@ -68,14 +75,83 @@ class AccountMove(models.Model):
         for move in self:
             move._ensure_cr_configuration()
             invoice = move._prepare_cr_invoice_payload()
+            try:
+                validate_invoice(invoice)
+            except ValidationError as exc:
+                raise UserError(_("La factura no cumple con los anexos 4.4: %s") % exc) from exc
+
             xml_bytes = render_invoice(invoice).encode("utf-8")
             filename = f"{move.name or 'factura'}_{move.id}.xml"
-            self.env["fe.cr.document"].create_from_invoice(
-                move,
-                xml_bytes,
-                filename,
-            )
+            document = move._ensure_cr_document(xml_bytes, filename)
+            document.state = "generated"
+            document.message = False
             move.cr_electronic_state = "generated"
+        return True
+
+    def action_send_cr_xml(self):
+        for move in self:
+            move._ensure_cr_configuration()
+            company = move.company_id
+            move._ensure_cr_credentials()
+
+            invoice = move._prepare_cr_invoice_payload()
+            try:
+                validate_invoice(invoice)
+            except ValidationError as exc:
+                raise UserError(_("La factura no cumple con los anexos 4.4: %s") % exc) from exc
+
+            unsigned_xml = render_invoice(invoice).encode("utf-8")
+            filename = f"{move.name or 'factura'}_{move.id}.xml"
+            document = move._ensure_cr_document(unsigned_xml, filename)
+
+            try:
+                signed_xml = move._sign_cr_xml(unsigned_xml)
+            except Exception as exc:
+                document.write(
+                    {
+                        "state": "error",
+                        "message": str(exc),
+                    }
+                )
+                move.cr_electronic_state = "error"
+                raise UserError(_("No se pudo firmar el XML: %s") % exc) from exc
+
+            api = HaciendaAPI(environment=company.cr_environment or "sandbox")
+            try:
+                api.authenticate(company.cr_hacienda_username, company.cr_hacienda_password)
+                response = api.submit_invoice(invoice, xml=signed_xml)
+            except HaciendaAPIError as exc:
+                payload = exc.payload or {}
+                message = json.dumps(payload, ensure_ascii=False, indent=2) if isinstance(payload, dict) else str(exc)
+                document.write(
+                    {
+                        "state": "error",
+                        "message": message,
+                        "xml_comprobante": base64.b64encode(signed_xml),
+                    }
+                )
+                move.cr_electronic_state = "error"
+                raise UserError(_("Hacienda rechazó el comprobante: %s") % exc) from exc
+            except Exception as exc:
+                document.write(
+                    {
+                        "state": "error",
+                        "message": str(exc),
+                        "xml_comprobante": base64.b64encode(signed_xml),
+                    }
+                )
+                move.cr_electronic_state = "error"
+                raise UserError(_("Ocurrió un error al enviar a Hacienda: %s") % exc) from exc
+
+            document.write(
+                {
+                    "state": "sent",
+                    "xml_comprobante": base64.b64encode(signed_xml),
+                    "sent_date": fields.Datetime.now(),
+                    "message": json.dumps(response, ensure_ascii=False, indent=2),
+                }
+            )
+            move.cr_electronic_state = "sent"
         return True
 
     def _ensure_cr_configuration(self):
@@ -233,6 +309,55 @@ class AccountMove(models.Model):
         self.cr_invoice_key = clave
         self.cr_consecutive_number = consecutivo
         return invoice
+
+    def _ensure_cr_document(self, xml_bytes, filename):
+        self.ensure_one()
+        documents = self.cr_document_ids.filtered(lambda d: d.state in {"draft", "generated", "error"})
+        document = documents.sorted(key=lambda d: d.create_date or fields.Datetime.now(), reverse=True)[:1]
+        if document:
+            document.write(
+                {
+                    "xml_comprobante": base64.b64encode(xml_bytes),
+                    "xml_filename": filename,
+                }
+            )
+            return document
+        return self.env["fe.cr.document"].create_from_invoice(
+            self,
+            xml_bytes,
+            filename,
+        )
+
+    def _ensure_cr_credentials(self):
+        for move in self:
+            company = move.company_id
+            missing = []
+            if not company.cr_hacienda_username:
+                missing.append(_("Usuario Hacienda"))
+            if not company.cr_hacienda_password:
+                missing.append(_("Contraseña Hacienda"))
+            if not company.cr_certificate_p12:
+                missing.append(_("Certificado P12 Hacienda"))
+            if not company.cr_certificate_password:
+                missing.append(_("Contraseña certificado"))
+            if missing:
+                raise UserError(
+                    _(
+                        "La compañía %s no tiene configurados los credenciales requeridos: %s"
+                    )
+                    % (company.name, ", ".join(missing))
+                )
+        return True
+
+    def _sign_cr_xml(self, xml_bytes: bytes) -> bytes:
+        self.ensure_one()
+        company = self.company_id
+        try:
+            certificate_bytes = base64.b64decode(company.cr_certificate_p12)
+        except Exception as exc:  # pragma: no cover - casos extremos
+            raise UserError(_("El certificado P12 es inválido")) from exc
+        password = company.cr_certificate_password or ""
+        return sign_xml_with_p12(xml_bytes, certificate_bytes, password)
 
     def _parse_payment_methods(self):
         codes = (self.cr_payment_methods or "01").split(",")

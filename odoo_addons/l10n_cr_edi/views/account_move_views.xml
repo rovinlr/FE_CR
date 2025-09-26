@@ -21,6 +21,7 @@
                     </group>
                     <footer>
                         <button name="action_generate_cr_xml" type="object" string="Generar XML Hacienda" class="btn-primary" attrs="{'invisible': [('move_type', 'not in', ('out_invoice','out_refund'))]}"/>
+                        <button name="action_send_cr_xml" type="object" string="Enviar XML a Hacienda" class="btn-secondary" attrs="{'invisible': [('move_type', 'not in', ('out_invoice','out_refund'))]}"/>
                     </footer>
                 </page>
             </xpath>

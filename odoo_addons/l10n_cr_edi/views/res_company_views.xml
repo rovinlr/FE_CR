@@ -19,6 +19,8 @@
                             <field name="cr_phone_number"/>
                             <field name="cr_email"/>
                             <field name="cr_environment"/>
+                            <field name="cr_hacienda_username"/>
+                            <field name="cr_hacienda_password" password="True"/>
                         </group>
                     </group>
                     <group>
@@ -28,6 +30,9 @@
                             <field name="cr_district"/>
                             <field name="cr_neighborhood"/>
                             <field name="cr_address"/>
+                            <field name="cr_certificate_p12" filename="cr_certificate_filename"/>
+                            <field name="cr_certificate_filename" invisible="1"/>
+                            <field name="cr_certificate_password" password="True"/>
                         </group>
                     </group>
                 </page>

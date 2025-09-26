@@ -20,9 +20,11 @@ from .models import (
     Location,
 )
 from .validation import validate_invoice
+from .signing import sign_xml_with_p12, CertificateError
 from .xml_builder import invoice_to_xml, render_invoice
 
 __all__ = [
+    "CertificateError",
     "Discount",
     "ElectronicInvoice",
     "Emisor",
@@ -42,6 +44,7 @@ __all__ = [
     "TaxExoneration",
     "ValidationError",
     "invoice_to_xml",
+    "sign_xml_with_p12",
     "render_invoice",
     "validate_invoice",
 ]
