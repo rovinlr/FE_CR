@@ -10,6 +10,8 @@ M처dulo en Python para generar comprobantes electr처nicos costarricenses (versi�
 
 - M처dulo complementario para Odoo 19 (`odoo_addons/fe_cr_einvoice`) con vistas, campos adicionales y permisos para gestionar comprobantes electr처nicos.
 
+=======
+
 
 ## Instalaci처n
 
@@ -93,6 +95,7 @@ invoice = ElectronicInvoice(
 xml = render_invoice(invoice)
 print(xml)
 ```
+
 
 
 ### Uso desde Odoo 19

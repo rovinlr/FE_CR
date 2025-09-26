@@ -6,6 +6,8 @@
     "license": "LGPL-3",
     "author": "OpenAI Assistant",
     "website": "https://github.com/example/fe_cr",
+
+    "category": "Accounting/Localizations",
     "depends": ["account"],
     "data": [
         "security/ir.model.access.csv",
@@ -17,4 +19,5 @@
     ],
     "installable": True,
     "application": False,
+
 }
