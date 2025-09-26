@@ -98,10 +98,11 @@ print(xml)
 
 ### Uso desde Odoo 19
 
-1. Copie la carpeta `odoo_addons/l10n_cr_edi` dentro del `addons_path` de su instancia.
-2. Active el modo desarrollador, actualice la lista de aplicaciones y quite el filtro "Aplicaciones" para que se muestren los módulos técnicos.
-3. Instale **Costa Rica Electronic Invoicing** y configure los datos de Hacienda en *Ajustes → Facturación → Costa Rica*.
-4. Abra una factura de cliente para acceder a la pestaña **Factura electrónica CR**, completar los campos requeridos y generar el XML mediante el botón **Generar XML Hacienda**.
+1. Instale el paquete Python ejecutando `pip install -e .` (o añada el directorio `fe_cr` al `PYTHONPATH` del entorno de Odoo).
+2. Copie la carpeta `odoo_addons/l10n_cr_edi` dentro del `addons_path` de su instancia.
+3. Active el modo desarrollador, actualice la lista de aplicaciones y quite el filtro "Aplicaciones" para que se muestren los módulos técnicos.
+4. Instale **Costa Rica Electronic Invoicing** y configure los datos de Hacienda en *Ajustes → Facturación → Costa Rica*.
+5. Abra una factura de cliente para acceder a la pestaña **Factura electrónica CR**, completar los campos requeridos y generar el XML mediante el botón **Generar XML Hacienda**.
 
 ### Envío a la API de Hacienda
 
