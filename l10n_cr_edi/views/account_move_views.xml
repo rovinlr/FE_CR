@@ -13,15 +13,15 @@
                         <field name="cr_consecutive_number" readonly="1"/>
                         <field name="cr_activity_code"/>
                         <field name="cr_sale_condition"/>
-                        <field name="cr_credit_days" attrs="{'invisible': [('cr_sale_condition', '!=', '02')]}"/>
+                        <field name="cr_credit_days" invisible="record.cr_sale_condition != '02'"/>
                         <field name="cr_payment_methods" placeholder="01,04"/>
                     </group>
                     <group>
                         <field name="cr_document_ids" readonly="1" widget="one2many_list"/>
                     </group>
                     <footer>
-                        <button name="action_generate_cr_xml" type="object" string="Generar XML Hacienda" class="btn-primary" attrs="{'invisible': [('move_type', 'not in', ('out_invoice','out_refund'))]}"/>
-                        <button name="action_send_cr_xml" type="object" string="Enviar XML a Hacienda" class="btn-secondary" attrs="{'invisible': [('move_type', 'not in', ('out_invoice','out_refund'))]}"/>
+                        <button name="action_generate_cr_xml" type="object" string="Generar XML Hacienda" class="btn-primary" invisible="record.move_type not in ['out_invoice', 'out_refund']"/>
+                        <button name="action_send_cr_xml" type="object" string="Enviar XML a Hacienda" class="btn-secondary" invisible="record.move_type not in ['out_invoice', 'out_refund']"/>
                     </footer>
                 </page>
             </xpath>
