@@ -6,6 +6,7 @@
     "license": "LGPL-3",
     "author": "OpenAI Assistant",
     "website": "https://github.com/example/fe_cr",
+
     "category": "Accounting/Localizations",
     "depends": ["account"],
     "data": [
@@ -17,5 +18,6 @@
         "views/res_config_settings_views.xml",
     ],
     "installable": True,
-    "application": True,
+    "application": False,
+
 }
