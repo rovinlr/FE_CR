@@ -7,6 +7,7 @@ Módulo en Python para generar comprobantes electrónicos costarricenses (versi�
 - Modelos de datos que siguen los encabezados, cuerpo y anexos de la **Factura Electrónica** establecidos por Tributación.
 - Validaciones básicas para los campos más relevantes (clave de 50 dígitos, consecutivo de 20 dígitos, identificación, totales).
 - Generación de XML listo para firmar y enviar a la ATV utilizando el esquema oficial `v4.4`.
+- Cliente ligero para autenticarse y comunicarse con la API de recepción (`/recepcion/v1`).
 
 - Módulo complementario para Odoo 19 (`odoo_addons/l10n_cr_edi`) con vistas, campos adicionales y permisos para gestionar comprobantes electrónicos.
 
@@ -101,6 +102,19 @@ print(xml)
 2. Active el modo desarrollador, actualice la lista de aplicaciones y quite el filtro "Aplicaciones" para que se muestren los módulos técnicos.
 3. Instale **Costa Rica Electronic Invoicing** y configure los datos de Hacienda en *Ajustes → Facturación → Costa Rica*.
 4. Abra una factura de cliente para acceder a la pestaña **Factura electrónica CR**, completar los campos requeridos y generar el XML mediante el botón **Generar XML Hacienda**.
+
+### Envío a la API de Hacienda
+
+```python
+from fe_cr import HaciendaAPI
+
+api = HaciendaAPI(environment="testing")
+token = api.authenticate("cpf-username", "cpf-password")
+response = api.submit_invoice(invoice)
+status = api.fetch_status(invoice.clave)
+```
+
+> **Nota:** La API espera el comprobante en formato Base64 y devuelve un `token` JWT. El `HaciendaAPI` incluido maneja ambos requisitos y expone las respuestas JSON devueltas por Hacienda para facilitar la integración con sistemas externos.
 
 
 ## Pruebas
