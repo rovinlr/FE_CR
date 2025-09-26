@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_fe_cr" model="ir.ui.view">
+        <field name="name">res.partner.form.fe.cr</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page name="fe_cr_partner" string="Factura electrónica CR">
+                    <group>
+                        <group>
+                            <field name="l10n_cr_identification_type"/>
+                            <field name="l10n_cr_identification_number"/>
+                            <field name="l10n_cr_phone_country_code"/>
+                            <field name="l10n_cr_phone_number"/>
+                        </group>
+                        <group string="Ubicación">
+                            <field name="l10n_cr_province"/>
+                            <field name="l10n_cr_canton"/>
+                            <field name="l10n_cr_district"/>
+                            <field name="l10n_cr_neighborhood"/>
+                            <field name="l10n_cr_address"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

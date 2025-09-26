@@ -6,7 +6,7 @@
     "author": "OpenAI Assistant",
     "website": "https://github.com/example/fe_cr",
     "category": "Accounting/Localizations",
-    "depends": ["account"],
+    "depends": ["account", "uom"],
     "external_dependencies": {
         "python": ["fe_cr", "cryptography", "lxml", "signxml"],
     },
@@ -17,6 +17,9 @@
         "views/account_move_views.xml",
         "views/res_company_views.xml",
         "views/res_config_settings_views.xml",
+        "views/res_partner_views.xml",
+        "views/account_tax_views.xml",
+        "views/uom_uom_views.xml",
     ],
     "installable": True,
     "application": True,
