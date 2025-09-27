@@ -16,7 +16,7 @@
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.uom.list"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='name']" position="after">
+            <xpath expr="//field[@name='name'][parent::list or parent::tree]" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
