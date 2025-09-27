@@ -4,13 +4,13 @@
         <field name="name">fe.cr.document.tree</field>
         <field name="model">fe.cr.document</field>
         <field name="arch" type="xml">
-            <list>
+            <tree string="Documentos electrónicos">
                 <field name="name"/>
                 <field name="move_id"/>
                 <field name="state"/>
                 <field name="sent_date"/>
                 <field name="response_date"/>
-            </list>
+            </tree>
         </field>
     </record>
 
