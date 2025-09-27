@@ -19,11 +19,15 @@
         <field name="model">fe.cr.document</field>
         <field name="arch" type="xml">
             <form string="Documento electrónico">
+                <header>
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,generated,sent,accepted,rejected,error"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="name"/>
                         <field name="move_id"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,generated,sent,accepted,rejected,error"/>
                     </group>
                     <group>
                         <field name="xml_filename" readonly="1"/>
