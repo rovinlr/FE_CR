@@ -4,7 +4,7 @@ import base64
 import json
 from decimal import Decimal
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from fe_cr import (
@@ -52,6 +52,8 @@ class AccountMove(models.Model):
         string="Medios de pago",
         help="Lista de códigos separados por coma según el catálogo de Hacienda",
     )
+    show_cr_credit_days = fields.Boolean(compute="_compute_show_cr_credit_days")
+    show_cr_xml_actions = fields.Boolean(compute="_compute_show_cr_xml_actions")
     cr_electronic_state = fields.Selection(
         selection=[
             ("draft", "Borrador"),
@@ -70,6 +72,16 @@ class AccountMove(models.Model):
         string="Documentos electrónicos",
         readonly=True,
     )
+
+    @api.depends("cr_sale_condition")
+    def _compute_show_cr_credit_days(self):
+        for move in self:
+            move.show_cr_credit_days = move.cr_sale_condition == SaleCondition.CREDITO.value
+
+    @api.depends("move_type")
+    def _compute_show_cr_xml_actions(self):
+        for move in self:
+            move.show_cr_xml_actions = move.move_type in ("out_invoice", "out_refund")
 
     def action_generate_cr_xml(self):
         for move in self:
