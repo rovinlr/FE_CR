@@ -3,7 +3,7 @@
     <record id="view_uom_form_inherit_fe_cr" model="ir.ui.view">
         <field name="name">uom.uom.form.fe.cr</field>
         <field name="model">uom.uom</field>
-        <field name="inherit_id" ref="uom.view_uom_form"/>
+        <field name="inherit_id" ref="uom.uom_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet//group//field[@name='category_id']" position="after">
                 <field name="l10n_cr_code"/>
@@ -14,7 +14,7 @@
     <record id="view_uom_tree_inherit_fe_cr" model="ir.ui.view">
         <field name="name">uom.uom.list.fe.cr</field>
         <field name="model">uom.uom</field>
-        <field name="inherit_id" ref="uom.view_uom_tree"/>
+        <field name="inherit_id" ref="uom.uom_view_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//tree//field[@name='name']" position="after">
                 <field name="l10n_cr_code"/>
@@ -25,7 +25,7 @@
     <record id="view_uom_search_inherit_fe_cr" model="ir.ui.view">
         <field name="name">uom.uom.view.search.fe.cr</field>
         <field name="model">uom.uom</field>
-        <field name="inherit_id" ref="uom.view_uom_search"/>
+        <field name="inherit_id" ref="uom.uom_view_search"/>
         <field name="arch" type="xml">
             <xpath expr="//search//field[@name='name']" position="after">
                 <field name="l10n_cr_code"/>
