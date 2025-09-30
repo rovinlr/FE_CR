@@ -15,7 +15,7 @@
                         <field name="cr_consecutive_number" readonly="1"/>
                         <field name="cr_activity_code"/>
                         <field name="cr_sale_condition"/>
-                        <field name="cr_credit_days" attrs="{'invisible': [('show_cr_credit_days', '=', False)]}"/>
+                        <field name="cr_credit_days" invisible="not show_cr_credit_days"/>
                         <field name="cr_payment_methods" placeholder="01,04"/>
                     </group>
                     <group>
@@ -26,12 +26,12 @@
                                 type="object"
                                 string="Generar XML Hacienda"
                                 class="btn-primary"
-                                attrs="{'invisible': [('show_cr_xml_actions', '=', False)]}"/>
+                                invisible="not show_cr_xml_actions"/>
                         <button name="action_send_cr_xml"
                                 type="object"
                                 string="Enviar XML a Hacienda"
                                 class="btn-secondary"
-                                attrs="{'invisible': [('show_cr_xml_actions', '=', False)]}"/>
+                                invisible="not show_cr_xml_actions"/>
                     </footer>
                 </page>
             </xpath>
