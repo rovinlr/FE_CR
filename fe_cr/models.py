@@ -124,13 +124,13 @@ class Discount:
 @dataclass(slots=True)
 class InvoiceLine:
     numero_linea: int
-    codigo: Optional[str]
     cantidad: Decimal
     unidad_medida: str
     detalle: str
     precio_unitario: Decimal
     monto_total: Decimal
     sub_total: Decimal
+    codigo: Optional[str] = None
     base_imponible: Optional[Decimal] = None
     impuesto: Optional[Tax] = None
     impuesto_neto: Optional[Decimal] = None
@@ -143,7 +143,7 @@ class InvoiceSummary:
     """Totales del comprobante según el esquema ``v4.4``."""
 
     moneda: str
-    tipo_cambio: Optional[Decimal]
+    tipo_cambio: Optional[Decimal] = None
     total_serv_gravados: Decimal = Decimal("0")
     total_serv_exentos: Decimal = Decimal("0")
     total_serv_exonerado: Decimal = Decimal("0")
@@ -184,12 +184,12 @@ class ElectronicInvoice:
     numero_consecutivo: str
     fecha_emision: datetime
     emisor: Emisor
-    receptor: Optional[Receptor]
     condicion_venta: SaleCondition
-    plazo_credito: Optional[str]
-    medios_pago: Sequence[PaymentMethod]
     detalle_servicio: Sequence[InvoiceLine]
     resumen: InvoiceSummary
+    receptor: Optional[Receptor] = None
+    plazo_credito: Optional[str] = None
+    medios_pago: Sequence[PaymentMethod] = field(default_factory=tuple)
     informacion_referencia: Sequence[ReferenceInformation] = field(default_factory=tuple)
     otros_cargos: Sequence[OtherCharge] = field(default_factory=tuple)
 
