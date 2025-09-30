@@ -1,6 +1,6 @@
 import base64
 
-from odoo import api, fields, models, _
+from odoo import Command, _, api, fields, models
 
 
 class ElectronicDocument(models.Model):
@@ -30,8 +30,8 @@ class ElectronicDocument(models.Model):
         string="Estado",
         tracking=True,
     )
-    xml_comprobante = fields.Binary(string="XML Comprobante")
-    xml_respuesta = fields.Binary(string="XML Respuesta")
+    xml_comprobante = fields.Binary(string="XML Comprobante", attachment=True)
+    xml_respuesta = fields.Binary(string="XML Respuesta", attachment=True)
     xml_filename = fields.Char(string="Nombre del XML")
     message = fields.Text(string="Mensaje de Hacienda")
     sent_date = fields.Datetime(string="Fecha de envío")
@@ -52,5 +52,5 @@ class ElectronicDocument(models.Model):
                 "xml_filename": filename,
             }
         )
-        move.cr_document_ids = [(4, document.id)]
+        move.cr_document_ids = [Command.link(document.id)]
         return document
