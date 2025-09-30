@@ -5,7 +5,7 @@
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.view_uom_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name'][ancestor::sheet]" position="after">
+            <xpath expr="//sheet//group//field[@name='category_id']" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
@@ -16,7 +16,7 @@
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.view_uom_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name'][parent::list or parent::tree]" position="after">
+            <xpath expr="//tree//field[@name='name']" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
@@ -27,7 +27,7 @@
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.view_uom_search"/>
         <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
+            <xpath expr="//search//field[@name='name']" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
