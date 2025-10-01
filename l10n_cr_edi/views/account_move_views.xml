@@ -10,11 +10,11 @@
                         type="object"
                         string="Generar XML Hacienda"
                         class="oe_highlight"
-                        attrs="{'invisible': [('show_cr_xml_actions', '=', False)]}"/>
+                        modifiers="{'invisible': [('show_cr_xml_actions', '=', False)]}"/>
                 <button name="action_send_cr_xml"
                         type="object"
                         string="Enviar XML a Hacienda"
-                        attrs="{'invisible': [('show_cr_xml_actions', '=', False)]}"/>
+                        modifiers="{'invisible': [('show_cr_xml_actions', '=', False)]}"/>
             </xpath>
             <xpath expr="//sheet/notebook" position="inside">
                 <page name="fe_cr" string="Factura electrónica CR">
@@ -27,7 +27,7 @@
                         <field name="cr_activity_code"/>
                         <field name="cr_sale_condition"/>
                         <field name="cr_credit_days"
-                               attrs="{'invisible': [('show_cr_credit_days', '=', False)]}"/>
+                               modifiers="{'invisible': [('show_cr_credit_days', '=', False)]}"/>
                         <field name="cr_payment_methods" placeholder="01,04"/>
                     </group>
                     <group>
