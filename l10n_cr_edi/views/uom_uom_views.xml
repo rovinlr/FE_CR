@@ -5,7 +5,9 @@
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.product_uom_form_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='category_id']" position="after">
+            <!-- The base view for uom.uom no longer exposes the category field,
+                 so we attach the Costa Rican code after the unit type instead. -->
+            <xpath expr="//field[@name='uom_type']" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
