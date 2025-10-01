@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <!-- The base view for uom.uom no longer exposes the category field,
                  so we attach the Costa Rican code after the unit type instead. -->
-            <xpath expr="//field[@name='uom_type']" position="after">
+            <xpath expr="//field[@name='uom_type'] | //field[@name='measure_type']" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
