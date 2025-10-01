@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_company_form"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet/notebook" position="inside">
-                <page string="Factura electrónica CR">
+                <page name="fe_cr_company" string="Factura electrónica CR">
                     <group>
                         <group>
                             <field name="cr_identification_type"/>
