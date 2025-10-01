@@ -40,7 +40,7 @@
                         </page>
                         <page string="Respuesta">
                             <field name="xml_respuesta" filename="xml_filename"/>
-                            <field name="message" widget="text" readonly="1"/>
+                            <field name="message" readonly="1"/>
                         </page>
                     </notebook>
                 </sheet>
