@@ -4,11 +4,11 @@
         <field name="name">uom.uom.form.fe.cr</field>
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.product_uom_form_view"/>
-        <field name="priority" eval="20"/>
+        <field name="priority" eval="90"/>
         <field name="arch" type="xml">
-            <field name="category_id" position="after">
+            <xpath expr="(//form//field[@name='category_id'] | //form//field[@name='name'])[1]" position="after">
                 <field name="l10n_cr_code" optional="hide"/>
-            </field>
+            </xpath>
         </field>
     </record>
 
