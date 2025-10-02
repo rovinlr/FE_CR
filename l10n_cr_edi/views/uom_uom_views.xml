@@ -4,14 +4,11 @@
         <field name="name">uom.uom.form.fe.cr</field>
         <field name="model">uom.uom</field>
         <field name="inherit_id" ref="uom.product_uom_form_view"/>
+        <field name="priority" eval="20"/>
         <field name="arch" type="xml">
-            <!-- The base view for uom.uom changed the field names we previously
-                 targeted (``uom_type`` / ``measure_type``).  To avoid further
-                 breakage we now append the Costa Rican code at the end of the
-                 first form group, which is present in all supported versions. -->
-            <xpath expr="//sheet/group[1]" position="inside">
-                <field name="l10n_cr_code"/>
-            </xpath>
+            <field name="category_id" position="after">
+                <field name="l10n_cr_code" optional="hide"/>
+            </field>
         </field>
     </record>
 
