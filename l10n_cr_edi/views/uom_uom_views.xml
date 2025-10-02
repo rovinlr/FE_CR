@@ -15,9 +15,10 @@
     <record id="view_uom_tree_inherit_fe_cr" model="ir.ui.view">
         <field name="name">uom.uom.list.fe.cr</field>
         <field name="model">uom.uom</field>
-        <field name="inherit_id" ref="uom.uom_view_tree"/>
+        <field name="inherit_id" ref="uom.product_uom_tree_view"/>
+        <field name="priority" eval="90"/>
         <field name="arch" type="xml">
-            <xpath expr="//list//field[@name='name']" position="after">
+            <xpath expr="(//tree//field[@name='name'] | //tree//field[@name='display_name'] | //tree//field[@name='category_id'])[1]" position="after">
                 <field name="l10n_cr_code"/>
             </xpath>
         </field>
